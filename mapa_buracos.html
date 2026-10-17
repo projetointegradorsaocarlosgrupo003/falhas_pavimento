@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de Buracos - São Carlos-SP</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    #map { height: 600px; width: 100%; border-bottom: 2px solid #ccc; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+    h1 { text-align: center; margin: 20px 0; color: #333; }
+    .legend { background: white; padding: 10px; line-height: 18px; color: #555; border-radius: 5px; box-shadow: 0 0 15px rgba(0,0,0,0.2); }
+    .legend i { width: 12px; height: 12px; float: left; margin-right: 8px; border-radius: 50%; opacity: 0.7; }
+  </style>
+</head>
+<body>
+
+  <h1>Monitoramento de Buracos - São Carlos-SP</h1>
+  <div id="map"></div>
+
+  <!-- Bibliotecas -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
+
+  <script>
+    // Inicializar mapa
+    const map = L.map('map').setView([-22.0056, -47.8977], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Link RAW do GitHub
+    const csvUrl = "https://raw.githubusercontent.com/projetointegradorsaocarlosv/mapa-buracos/main/dados.csv";
+
+    // Ler CSV
+    Papa.parse(csvUrl, {
+      download: true,
+      header: true, // Se o CSV não tiver cabeçalho, mude para false
+      skipEmptyLines: true,
+      complete: function(results) {
+        console.log("Dados carregados:", results.data); // Conferir no console os nomes das colunas
+
+        results.data.forEach((row, index) => {
+          // Ajuste: use os nomes reais das colunas
+          const latRaw = row.latitude || row.field2 || row[0];
+          const lonRaw = row.longitude || row.field3 || row[1];
+          const categoria = (row.categoria || row.field4 || row[2] || "").toString().trim();
+
+          const lat = parseFloat(latRaw);
+          const lon = parseFloat(lonRaw);
+
+          if (!isNaN(lat) && !isNaN(lon)) {
+            let cor, tamanhoTxt;
+            switch(categoria) {
+              case "1": cor = "blue"; tamanhoTxt = "Pequeno"; break;
+              case "2": cor = "orange"; tamanhoTxt = "Médio"; break;
+              case "3": cor = "purple"; tamanhoTxt = "Grande"; break;
+              default: cor = "red"; tamanhoTxt = "Não informado";
+            }
+
+            L.circleMarker([lat, lon], {
+              radius: 8,
+              fillColor: cor,
+              color: "#000",
+              weight: 1,
+              opacity: 1,
+              fillOpacity: 0.8
+            }).addTo(map)
+              .bindPopup(`<b>Ocorrência #${index + 1}</b><br>Tamanho: ${tamanhoTxt}<br>Coordenadas: ${lat}, ${lon}`);
+          }
+        });
+      },
+      error: function(err) {
+        console.error("Erro ao carregar o CSV:", err);
+        alert("Não foi possível carregar os dados do mapa.");
+      }
+    });
+
+    // Legenda
+    const legend = L.control({position: 'bottomright'});
+    legend.onAdd = function () {
+        const div = L.DomUtil.create('div', 'legend');
+        div.innerHTML += '<b>Tamanho do Buraco</b><br>';
+        div.innerHTML += '<i style="background: blue"></i> Pequeno (1)<br>';
+        div.innerHTML += '<i style="background: orange"></i> Médio (2)<br>';
+        div.innerHTML += '<i style="background: purple"></i> Grande (3)<br>';
+        return div;
+    };
+    legend.addTo(map);
+  </script>
+</body>
+</html>
