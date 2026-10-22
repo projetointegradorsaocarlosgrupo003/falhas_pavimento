@@ -59,7 +59,7 @@ A visualização cartográfica é disponibilizada publicamente via **GitHub Page
   - Marcadores com código de cores por severidade: **Amarelo** (Pequeno), **Laranja** (Médio) e **Vermelho** (Grande).
   - Pop-ups informativos com data, hora, coordenadas e intensidade registrada.
   - Legendas explicativas e enquadramento automático de mapa (*fitBounds*).
-- **Link do Mapa Interativo:** [https://projetointegradorsaocarlosv.github.io/falhas_pavimento/](https://projetointegradorsaocarlosv.github.io/falhas_pavimento/)
+- **Link do Mapa Interativo:** https://projetointegradorsaocarlosgrupo003.github.io/falhas_pavimento/
 
 ---
 
